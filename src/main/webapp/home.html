@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+          crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        ::-webkit-scrollbar {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #c5c1c199;
+        }
+
+        .sidebar {
+            flex: none;
+            width: min(20vw, 16rem);
+            background: rgb(97, 16, 195);
+            background: linear-gradient(0deg, rgb(139, 234, 234) 0%, rgb(132, 239, 207) 100%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .setting-wrapper {
+            flex: none;
+            height: fit-content;
+            margin: .5rem;
+            margin-top: auto;
+            border-top: 1px solid black;
+            text-align: center;
+            line-height: 3rem;
+            font-size: 1.5rem;
+        }
+
+        .setting {
+            cursor: pointer;
+            color: rgb(255, 255, 255);
+        }
+
+        .new-chat {
+            --data-height: 3rem;
+            --data-padding: 10px;
+            background-color: darkorange;
+            box-sizing: border-box;
+            height: var(--data-height);
+            margin: 1rem;
+            padding: var(--data-padding);
+            border: 1px solid black;
+            border-radius: 4px;
+            line-height: calc(var(--data-height) - var(--data-padding) * 2);
+            cursor: pointer;
+            flex: none;
+        }
+
+        .new-chat:hover {
+            border-color: rgba(7, 125, 21, 0.843);
+            background-color: rgba(12, 180, 121, 0.871);
+        }
+
+
+        .chat-list {
+            overflow-y: scroll;
+        }
+
+        .chat-card {
+            text-align: center;
+            margin: 0 .5rem;
+            padding: .5rem 0;
+            border: 1px solid limegreen;
+            border-radius: 1rem;
+            display: flex;
+        }
+
+        .chat-card span {
+            margin: auto;
+        }
+
+        .chat-card button {
+            margin-left: auto;
+        }
+
+        .chat-card:hover {
+            cursor: pointer;
+            border: 1px solid rgba(134, 222, 242, 0.51);
+            border-radius: .3rem;
+            background-color: rgba(112, 208, 192, 0.506);
+        }
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgb(238, 174, 202);
+            background: radial-gradient(circle, rgba(198, 238, 114, 0.3) 0%, rgba(225, 1184, 208, 0.3) 100%);
+
+        }
+
+        .message-area {
+            overflow-y: scroll;
+            position: relative;
+            padding: 2rem;
+        }
+
+        .welcome-area p {
+            margin: auto;
+            text-align: center;
+        }
+
+        .operation-bar {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0 15%;
+            margin-top: auto;
+            margin-bottom: 5rem;
+            flex: none;
+        }
+
+        .stop-wrapper {
+            text-align: center;
+            margin: 1rem;
+        }
+
+        .stop-wrapper button {
+            min-width: min-content;
+            width: 6rem;
+            height: 2.5rem;
+        }
+
+        .chat-input-wrapper {
+            height: 3rem;
+            margin: auto;
+            position: relative;
+        }
+
+        .chat-input-wrapper i {
+            --data-height: 3rem;
+            display: block;
+            position: absolute;
+            right: 1rem;
+            top: 0;
+            height: var(--data-height);
+            width: min-content;
+            line-height: var(--data-height);
+            cursor: pointer;
+        }
+
+        .chat-input {
+            width: 100%;
+            height: 100%;
+            border: 2px solid orange;
+            border-radius: 50px;
+            outline: none;
+            font-size: 1.5rem;
+            padding: 0.5rem 1rem;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        .chat-input:focus {
+            border-color: #ff8c00;
+        }
+
+
+
+
+        .chat-message {
+            margin: 1rem 0;
+        }
+
+        .chat-message.right {
+
+            width: 500px;
+            display: block; /* 将 div 标签展示为块级元素 */
+            float: right; /* 将 div 标签向右浮动 */
+            clear: both;
+            margin-bottom: 10px;
+            width: 50%;
+
+        }
+
+        .chat-message.left {
+
+            width: 500px;
+
+            display: block; /* 将 div 标签展示为块级元素 */
+            float: left; /* 将 div 标签向右浮动 */
+            clear: both;
+            margin-bottom: 10px;
+            width: 50%;
+
+
+        }
+
+        .nowtime{
+            font-size: 12px;
+            color: red;
+            font-family: Arial, sans-serif;
+
+        }
+        .chatText{
+            font-size: 16px;
+            color: white;
+            font-family: Arial, sans-serif;
+            background-color: #666666;
+            border: 2px solid orange;
+            border-radius: 15px;
+            width: 400px;
+        }
+
+        .avatar {
+            font-size: 2rem;
+            margin: 1rem;
+            line-height: 100%;
+            order: 0;
+        }
+
+        .mt-0 {
+            font-size: 5px;
+
+        }
+
+        .right .avatar {
+            order: 1;
+        }
+
+        .comment-wrapper {
+            background-color: #f8c1c1;
+            width: 800px;
+            position: absolute;
+            border-radius: 20px;
+            border-width: 5px;
+            border-color: #ff8c00;
+            bottom: 2px;
+
+        }
+
+        #collapse-btn{
+            position: relative;
+
+        }
+
+
+
+
+
+
+        .inputStyle {
+            position: relative;
+            left:100px;
+            top:10px
+
+        }
+
+        .inputStyle input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            border: 2px solid #ed690a;
+            border-radius: 10px;
+            font-size: 16px;
+            width: 300px;
+            height: 40px;
+        }
+
+
+
+        #comment-area {
+            max-height: 20rem;
+            overflow-y: scroll;
+            margin: 1rem 0;
+        }
+
+
+
+
+        #send-btn {
+            display: block;
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 2.5rem;
+            width: 2.5rem;
+            font-size: 1.2rem;
+            line-height: 2.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: color 0.3s ease-in-out;
+        }
+
+        #send-btn:hover {
+            color: #666;
+        }
+
+        #send-btn:active {
+            transform: translateY(-50%) scale(0.6);
+        }
+
+        .comment-card{
+            position: relative;
+            left:10px;
+            background-color: darkolivegreen;
+            border:2px solid orange ;
+        }
+
+
+
+    </style>
+</head>
+
+<body>
+<div style="display: flex;height: 100vh;">
+    <div class="sidebar">
+        <div style="border-bottom: 1px solid rgba(21, 123, 240, 0.861);margin-bottom: .5rem;">
+            <div class="new-chat" data-toggle="modal" data-target="#chatModel">
+
+                <span>&nbsp;Create Chat <i class="bi bi-plus-square-dotted"></i></span>
+            </div>
+        </div>
+
+        <!-- 新建对话框 -->
+        <div class="modal fade" id="chatModel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">New Chat</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="input-group flex-nowrap">
+                                <span class="input-group-text" id="addon-wrapping"><i
+                                        class="bi bi-chat-left-text"></i></span>
+                            <input name="chat-title" type="text" class="form-control" placeholder="Chat Title"
+                                   aria-label="Username" aria-describedby="addon-wrapping">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button id="new-chat" type="button" class="btn btn-primary">Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="chat-list">
+            <div class="chat-card">1</div>
+        </div>
+        <div class="setting-wrapper">
+            <div class="btn-group dropup setting">
+                <div class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person"></i><span>My Account</span>
+                </div>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="./person.html">Setting</a>
+                    <a class="dropdown-item" href="./index.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="chat-area">
+        <div class="message-area">
+        </div>
+        <div class="operation-bar">
+            <div class="stop-wrapper">
+                <button type="button" class="btn btn-danger" id="stop-btn">Stop</button>
+            </div>
+            <div class="chat-input-wrapper">
+                <input class="chat-input" type="text" placeholder="please input your question" name="message">
+                <i class="bi bi-send" id="send-btn"></i>
+            </div>
+            <div class="comment-wrapper">
+                <div class="inputStyle">
+                    <button class="btn btn-info" type="button" id="collapse-btn">
+                        <span>Comments</span> <span class="badge badge-light" id="comment-badge">xx</span>
+                    </button>
+                    <input type="text" placeholder="input your comment" name="comment">
+                    <button type="button" class="btn btn-success" id="comment-btn">
+                        Comment
+                    </button>
+                </div>
+                <div class="collapse" id="comment-area">
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"
+        crossorigin="anonymous"></script>
+<script>
+    let userStr = sessionStorage.getItem("JAVAEE_USER")
+    if (!userStr) {
+        alert("Please login first!")
+        window.location.href = "./index.html"
+    }
+    let appContext = {
+        chatList: [],
+        user: JSON.parse(userStr),
+        activeChat: null,
+        activeMessageList: []
+    }
+
+    window.onload = function () {
+        renderChatList()
+        resetFormStatus()
+        $("#new-chat").on("click", function () {
+            onNewChat()
+        })
+
+        $("#send-btn").on('click', function () {
+            onSendMessage()
+        })
+
+        $("input[name='message']").on('keypress', function (ev) {
+            if (ev.keyCode === 13) {
+                onSendMessage()
+            }
+        })
+
+        $("#stop-btn").on('click', function () {
+            onStopChat()
+        })
+
+        $("#collapse-btn").on('click', function () {
+            $("#comment-area").fadeToggle()
+        })
+
+        $("#comment-btn").on('click', function () {
+            onComment()
+        })
+    }
+
+    function onDeleteChat() {
+        const chatId = Number($(this).attr("number"))
+        $.ajax({
+            url: "chat",
+            type: "POST",
+            data: {
+                "id": chatId,
+                "method": 'delete'
+            },
+            success: function (data) {
+                data = JSON.parse(data)
+                alert(data.message)
+                location.reload()
+            }
+        })
+    }
+
+    function onNewChat() {
+        const chatTitle = $("input[name='chat-title']").val()
+        if (chatTitle.trim().length === 0) {
+            alert("Please input chat title!")
+            return
+        }
+        $.ajax({
+            url: "chat",
+            type: "POST",
+            data: {
+                "user_id": appContext.user.id,
+                "title": chatTitle
+            },
+            success: function (data) {
+                data = JSON.parse(data)
+//                alert(data.message)
+                $('#chatModel').modal('hide');
+                renderChatList()
+            }
+        })
+    }
+
+    function onSelectChat() {
+        let chatId = Number($(this).attr("number"))
+        appContext.activeChat = appContext.chatList.find(el => el.id === chatId)
+        console.log(appContext.activeChat)
+        resetFormStatus()
+        renderMessageList(chatId)
+        renderCommentList(chatId)
+        adaptFormStatus()
+    }
+
+    function onComment() {
+        const comment = $("input[name='comment']").val()
+        if (!appContext.activeChat) {
+            alert("Please select chat first!")
+            return
+        }
+        if (comment.trim().length === 0) {
+            alert("Please input comment!")
+            return
+        }
+        $.ajax({
+            url: 'comment',
+            type: 'POST',
+            data: {
+                "chat_id": appContext.activeChat.id,
+                "user_id": appContext.user.id,
+                "content": comment
+            },
+            success: function (data) {
+                data = JSON.parse(data)
+                if (data.code === 200) {
+                    renderCommentList(appContext.activeChat.id)
+                    $("input[name='comment']").val("")
+                } else {
+                    console.error(data.message)
+                }
+            }
+        })
+    }
+
+    function onSendMessage() {
+        const msg = $("input[name='message']").val()
+        if (!appContext.activeChat) {
+            alert("Please select chat first!")
+            return
+        }
+        if (msg.trim().length === 0) {
+            alert("Please input message!")
+            return
+        }
+        $.ajax({
+            url: 'message',
+            type: 'POST',
+            data: {
+                "chat_id": appContext.activeChat.id,
+                "content": msg
+            },
+            success: function (data) {
+                data = JSON.parse(data)
+                if (data.code === 200) {
+                    renderMessageList(appContext.activeChat.id)
+                    $("input[name='message']").val("")
+                } else {
+                    console.error(data.message)
+                }
+            }
+        })
+    }
+
+    function onStopChat() {
+        if (!appContext.activeChat) {
+            alert("Please select chat first!")
+            return
+        }
+        $.ajax({
+            url: 'chat',
+            type: 'POST',
+            data: {
+                "method": 'put',
+                "id": appContext.activeChat.id,
+                "status": 'finished'
+            },
+            success: function (data) {
+                data = JSON.parse(data)
+                if (data.code === 200) {
+ //                   alert(data.message)
+                    location.reload()
+                } else {
+                    console.error(data.message)
+                }
+            }
+        })
+    }
+
+    function adaptFormStatus() {
+        if (!appContext.activeChat) {
+            return
+        }
+        if (appContext.activeChat.status === 'finished') {
+            $(".stop-wrapper").hide()
+            $(".chat-input-wrapper").hide()
+            $(".comment-wrapper").show()
+        }
+    }
+
+    function resetFormStatus() {
+        $(".stop-wrapper").show()
+        $(".chat-input-wrapper").show()
+        $(".comment-wrapper").hide()
+    }
+
+    function renderCommentList(chatId) {
+        $.ajax({
+            url: "comment/list",
+            type: "get",
+            data: {
+                "chat_id": chatId
+            },
+            success: function (data) {
+                data = JSON.parse(data)
+                if (data.code === 200) {
+                    appContext.activeChat.commentList = data.data.list || []
+                    $("#comment-badge").text(appContext.activeChat.commentList.length)
+                    $("#comment-area").empty()
+                    for (const el of appContext.activeChat.commentList) {
+                        const cardBox = $(createCommentBox(appContext.user.username, el.content, el.createTime))
+                        $("#comment-area").append(cardBox)
+                    }
+                    $("#comment-area").hide()
+                } else {
+                    console.error(data.message)
+                }
+            }
+        })
+    }
+
+    function renderChatList() {
+        $.ajax({
+            url: "chat/list",
+            type: "get",
+            data: {
+                "user_id": appContext.user.id
+            },
+            success: function (data) {
+                data = JSON.parse(data)
+                if (data.code === 200) {
+                    appContext.chatList = data.data.list || []
+                    console.log(appContext)
+                    $(".chat-list").empty().hide()
+                    for (const el of appContext.chatList) {
+                        const deleteBtn = $(`<button class="btn btn-danger btn-sm" number="${el.id}">Delete</button>`).on('click', onDeleteChat)
+                        const textP = $('<span></span>').text(el.title)
+                        const cardBox = $(`<div class="chat-card" number="${el.id}"></div>`).on('click', onSelectChat).append(textP).append(deleteBtn)
+                        $(".chat-list").append(cardBox)
+                    }
+                    $(".chat-list").fadeIn()
+                } else {
+                    console.error(data.message)
+                }
+            }
+        })
+    }
+
+    function renderMessageList(chatId) {
+        $.ajax({
+            url: "message/list",
+            type: "get",
+            data: {
+                "chat_id": chatId
+            },
+            success: function (data) {
+                data = JSON.parse(data)
+                if (data.code === 200) {
+                    appContext.activeMessageList = data.data.list || []
+                    console.log(appContext)
+                    $(".message-area").empty().hide()
+                    for (const el of appContext.activeMessageList) {
+                        const dir = el.userFromId === appContext.user.id ?   "left":"right"
+                        const person = el.userFromId === appContext.user.id ? "You" : "AIChat"
+                        const message = el.content
+                        const time = el.createTime
+                        const cardBox = $(createMessageBox(person, message, time, dir))
+                        $(".message-area").append(cardBox)
+                    }
+                    $(".message-area").fadeIn()
+                } else {
+                    console.error(data.message)
+                }
+            }
+        })
+    }
+
+    function createCommentBox(person, message, time) {
+        return `
+        <div className="comment-card">
+            <p>用户:${person}</p>
+            <p>${message}</p>
+            <p>评论时间:${time}</p>
+        </div>`
+    }
+
+    function createMessageBox(person, message, time, dir) {
+        const heading = person
+        const icon = (person.toLowerCase() !== "You" ?  'bi bi-android':'bi bi-person-circle' )
+        const body = message
+        const footer = time
+        return `<div class="chat-message ${dir}">
+                <div class="media">
+                    <div class="avatar">
+                        <i class="bi ${icon}"></i>
+                    </div>
+                    <div class="media-body">
+                        <h5 class="mt-0">${heading}</h5>
+                        <p class="chatText">${body}</p>
+                        <p  class="nowtime">${footer}</p>
+                    </div>
+                </div>
+            </div>
+            `
+    }
+</script>
+
+</body>
+
+</html>

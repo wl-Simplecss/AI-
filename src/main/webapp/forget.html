@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>忘记密码</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            width: 400px;
+            height: 460px;
+            background-color: #f4f4f4;
+            margin: 40px auto;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .3);
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #f44336;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .form-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .form-item input {
+            width: 100%;
+            height: 48px;
+            border: none;
+            background-color: #fff;
+            padding: 0 20px;
+            border-radius: 30px;
+            font-size: 16px;
+            letter-spacing: 1px;
+            color: #333;
+            border: 2px solid #f44336;
+        }
+
+        .form-item input:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+
+        .form-item label {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 20px;
+            font-size: 16px;
+            color: #666;
+            pointer-events: none;
+            transition: all .2s ease-out;
+        }
+
+        .form-item input:focus + label,
+        .form-item input:not(:placeholder-shown) + label {
+            top: 10px;
+            font-size: 12px;
+            color: #f44336;
+        }
+
+        .form-item.alert label {
+            color: #f00;
+        }
+
+        .form-item.alert input {
+            background-color: #ffeaea;
+            border-color: #f00;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            height: 48px;
+            border: none;
+            background-color: #f44336;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all .2s ease-out;
+        }
+
+        .btn:hover {
+            background-color: #ff6b6b;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .links a {
+            color: #f44336;
+            text-decoration: none;
+            transition: all .3s ease-in-out;
+            margin: 10px;
+            font-size: 14px;
+        }
+
+        .links a:hover {
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+
+<body>
+<div class="login-box">
+    <h2>忘记密码</h2>
+    <div class="form-item">
+        <input type="text" name="username" required>
+        <label >用户名</label>
+    </div>
+    <div class="form-item">
+        <input type="text" name="phone" required>
+        <label >手机号</label>
+    </div>
+    <div class="form-item">
+        <input type="password" name="password" id="password" minlength="8" required>
+        <label for="password">新密码</label>
+    </div>
+    <div class="form-item alert" id="passAlert" style="display: none;">
+        <input type="password" name="password-confirm" id="password-confirm" minlength="8" required>
+        <label for="password-confirm">确认新密码</label>
+    </div>
+    <button id="save-btn" class="btn">修改密码</button>
+    <div class="links">
+        <a href="./register.html">注册账号</a>
+        <a href="./index.html">返回登录</a>
+    </div>
+</div>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"
+        crossorigin="anonymous"></script>
+<script>
+
+    window.onload = function () {
+        $("#save-btn").on("click", function () {
+            let username = $("input[name='username']").val();
+            let password = $("input[name='password']").val();
+            let phone = $("input[name='phone']").val();
+
+            if (check(password)==false ) {
+                alert("密码长度要>=8,并且包含数字和字母");
+                return;
+            }
+
+            if (!username.trim() || !password.trim() || !phone.trim()) {
+                alert("用户名、密码、手机号不能为空");
+                return;
+            }
+
+            $.ajax({
+                url: "password",
+                type: "post",
+                data: {
+                    username,
+                    password,
+                    phone
+                },
+                success: function (data) {
+                    data = JSON.parse(data)
+                    if (data.code === 200) {
+ //                       alert("修改成功");
+                        window.location.href = "./index.html";
+                    } else {
+                        alert(data.message);
+                    }
+                }
+            })
+        })
+    }
+
+
+
+
+
+
+    function check(str) {
+        const regex = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$/;
+        if (str.length >= 8 && regex.test(str)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+</script>
+</body>
+
+</html>

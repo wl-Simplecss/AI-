@@ -1,0 +1,152 @@
+<!DOCTYPE html> <html>
+<head>
+    <title>User Profile</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body{
+            background-color: #FCA311;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+        .container{
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 50px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        h1{
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #FCA311;
+        }
+        label{
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #FCA311;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"]
+        { display: block;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            background-color: #FEE5D9;
+            color: #000;
+        }
+        input[type="submit"]
+        {
+            display: inline-block;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #FCA311;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]
+        :hover{
+            background-color: #FFC288;
+        }
+        .error{
+            color: #FF5733; font-weight: bold; margin-top: 10px; } </style>
+</head>
+<body>
+<div class="container">
+    <h1>User Profile</h1>
+    <form>
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" disabled>
+
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email">
+
+    <label for="address">Address</label>
+    <input type="text" id="address" name="address">
+
+    <label for="phone">Phone</label>
+    <input type="text" id="phone" name="phone">
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password">
+
+    <label for="switch-pass">Change Password</label>
+    <input type="checkbox" id="switch-pass" name="switch-pass">
+
+    <input type="submit" id="save-btn" value="Save">
+</form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    let user = sessionStorage.getItem("JAVAEE_USER")
+    user = JSON.parse(user)
+    if (!user) {
+        alert("Please login first")
+        window.location.href = "./index.html"
+    }
+    $("#username").val(user.username)
+    $("input[name='email']").val(user.email)
+    $("input[name='address']").val(user.address)
+    $("input[name='phone']").val(user.phone)
+
+    $("#save-btn").on("click", function () {
+        let newData = {
+            id: user.id,
+            email: $("input[name='email']").val(),
+            address: $("input[name='address']").val(),
+            phone: $("input[name='phone']").val(),
+            method: 'put'
+        }
+        if ($("#switch-pass").get(0).checked) {
+
+            newData["password"] = $("input[name='password']").val()
+            if(check(newData["password"])==false){
+                alert("密码至少八位，并包含字母和数字");
+                return ;}
+        }
+        $.ajax({
+            url: "user",
+            type: "post",
+            data: newData,
+            success: function (data) {
+                data = JSON.parse(data)
+                if (data.code === 200) {
+                    window.location.href = "./home.html"
+                    sessionStorage.setItem("JAVAEE_USER", JSON.stringify(data.data.user))
+
+                } else {
+                    alert(data.message)
+                }
+            }
+        })
+    })
+
+
+
+
+    function check(str) {
+        const regex = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$/;
+        if (str.length >= 8 && regex.test(str)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+</script>
+</body> </html>
